@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumière Modern</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400;600&family=Montserrat:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--dark-green:#0A3323;--moss:#839958;--beige:#F7F4D5;--rosy:#D3968C;--midnight:#105666;}
+body{font-family:'Poppins',sans-serif;background:var(--beige);color:var(--dark-green);}
+
+/* ── HEADER ─────────────────────────────────── */
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:var(--dark-green);color:var(--beige);position:relative;z-index:200;}
+.logo{font-family:'Playfair Display',serif;font-size:30px;letter-spacing:1px;color:var(--moss);cursor:pointer;}
+.header-icons{display:flex;align-items:center;gap:22px;}
+.hicon{cursor:pointer;font-size:22px;transition:0.3s;position:relative;}
+.hicon:hover{transform:scale(1.15);color:var(--rosy);}
+.cart-wrap{font-weight:600;cursor:pointer;font-size:16px;display:flex;align-items:center;gap:6px;}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--rosy);color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 4px;}
+.wish-icon-wrap{position:relative;cursor:pointer;font-size:22px;transition:0.3s;}
+.wish-icon-wrap:hover{transform:scale(1.15);}
+.wish-icon-wrap.has-items{color:var(--rosy);filter:drop-shadow(0 0 6px rgba(211,150,140,0.6));}
+.wish-badge{position:absolute;top:-6px;right:-8px;display:none;}
+
+/* ── SEARCH OVERLAY ─────────────────────────── */
+.search-overlay{position:fixed;inset:0;background:rgba(10,51,35,0.93);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding-top:110px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.search-overlay.open{opacity:1;pointer-events:all;}
+.search-box{width:min(700px,90vw);position:relative;}
+.search-input{width:100%;background:transparent;border:none;border-bottom:2px solid var(--moss);color:var(--beige);font-family:'Playfair Display',serif;font-size:34px;padding:12px 50px 12px 0;outline:none;caret-color:var(--rosy);}
+.search-input::placeholder{color:rgba(247,244,213,0.3);font-style:italic;}
+.search-close-btn{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--beige);font-size:28px;cursor:pointer;opacity:0.6;transition:0.2s;line-height:1;}
+.search-close-btn:hover{opacity:1;color:var(--rosy);}
+.search-results{margin-top:28px;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.sr-item{display:flex;align-items:center;gap:16px;background:rgba(247,244,213,0.06);border-radius:12px;padding:10px 14px;cursor:pointer;transition:0.2s;}
+.sr-item:hover{background:rgba(247,244,213,0.13);}
+.sr-item img{width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;}
+.sr-info{flex:1;min-width:0;}
+.sr-name{color:var(--beige);font-family:'Playfair Display',serif;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sr-meta{font-size:12px;color:rgba(247,244,213,0.5);margin-top:2px;}
+.sr-price{color:var(--rosy);font-weight:600;font-size:14px;white-space:nowrap;}
+.search-empty{color:rgba(247,244,213,0.4);font-style:italic;font-size:15px;padding:20px 0;}
+.search-hint{color:rgba(247,244,213,0.28);font-size:13px;margin-top:20px;font-family:'Montserrat',sans-serif;}
+
+/* ── AUTH MODAL ─────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(10,51,35,0.72);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(5px);}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.auth-card{background:var(--beige);border-radius:22px;padding:40px 44px;width:min(440px,92vw);position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.28);animation:slideUp 0.35s ease;}
+@keyframes slideUp{from{transform:translateY(28px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.auth-card h2{font-family:'Playfair Display',serif;font-size:28px;color:var(--dark-green);margin-bottom:4px;}
+.auth-sub{font-size:13px;color:#aaa;margin-bottom:24px;font-style:italic;}
+.auth-tabs{display:flex;margin-bottom:26px;border-radius:12px;overflow:hidden;border:1.5px solid var(--moss);}
+.a-tab{flex:1;padding:10px;background:transparent;border:none;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:0.25s;color:var(--moss);}
+.a-tab.active{background:var(--dark-green);color:var(--beige);}
+.a-field{margin-bottom:14px;}
+.a-field label{display:block;font-size:11px;font-weight:700;color:var(--dark-green);margin-bottom:5px;letter-spacing:0.6px;text-transform:uppercase;}
+.a-field input{width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;color:var(--dark-green);background:#fff;transition:0.2s;outline:none;margin:0;}
+.a-field input:focus{border-color:var(--moss);}
+.a-btn{width:100%;padding:13px;margin-top:8px;border:none;background:var(--dark-green);color:var(--beige);border-radius:25px;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;transition:0.3s;}
+.a-btn:hover{background:var(--midnight);}
+.a-err{font-size:13px;color:#c0392b;margin-top:6px;min-height:18px;}
+.m-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;color:#bbb;line-height:1;transition:0.2s;}
+.m-close:hover{color:var(--rosy);}
+
+/* User chip in header */
+.user-chip{display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(131,153,88,0.2);border-radius:20px;padding:5px 14px 5px 8px;transition:0.2s;}
+.user-chip:hover{background:rgba(131,153,88,0.32);}
+.user-av{width:28px;height:28px;border-radius:50%;background:var(--moss);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.user-nm{font-size:13px;font-weight:600;color:var(--beige);max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-dd{position:absolute;top:58px;right:0;background:var(--beige);border-radius:14px;padding:8px 0;box-shadow:0 12px 32px rgba(0,0,0,0.16);display:none;flex-direction:column;z-index:1000;min-width:190px;overflow:hidden;}
+.user-dd.open{display:flex;}
+.dd-item{padding:11px 20px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:10px;transition:0.15s;color:var(--dark-green);}
+.dd-item:hover{background:rgba(10,51,35,0.06);}
+.dd-divider{border-top:1px solid #e8e5d0;margin:4px 0;}
+.dd-logout{color:#c0392b;}
+
+/* ── WISHLIST PAGE ──────────────────────────── */
+.wishlist-page{display:none;padding:40px;}
+
+/* ── WISHLIST HEART ON CARDS ────────────────── */
+.wish-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;width:34px;height:34px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:0.2s;z-index:5;line-height:1;}
+.wish-btn:hover{transform:scale(1.18);}
+.wish-btn.on{color:var(--rosy);}
+@keyframes heartPop{0%{transform:scale(1);}40%{transform:scale(1.5);}70%{transform:scale(0.88);}100%{transform:scale(1);}}
+.heart-pop{animation:heartPop 0.32s ease;}
+
+/* ── CAROUSEL ────────────────────────────────── */
+.carousel-wrapper{position:relative;overflow:hidden;background:var(--dark-green);}
+.carousel-track{display:flex;transition:transform 0.7s cubic-bezier(0.77,0,0.175,1);}
+.carousel-slide{min-width:100%;position:relative;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.carousel-slide img{width:100%;height:420px;object-fit:cover;display:block;opacity:0.55;}
+.carousel-caption{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:40px;gap:14px;}
+.carousel-caption h2{font-family:'Playfair Display',serif;font-size:46px;letter-spacing:1px;text-shadow:0 2px 18px rgba(0,0,0,0.5);}
+.carousel-caption p{font-family:'Montserrat',sans-serif;font-size:16px;max-width:520px;line-height:1.8;opacity:0.9;}
+.carousel-caption button{margin-top:8px;background:var(--beige);color:var(--dark-green);border:none;padding:12px 28px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;transition:0.3s;font-family:'Poppins',sans-serif;}
+.carousel-caption button:hover{background:var(--rosy);color:#fff;}
+.carousel-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;}
+.carousel-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.45);border:none;cursor:pointer;transition:0.3s;padding:0;}
+.carousel-dot.active{background:#fff;transform:scale(1.25);}
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.18);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;z-index:10;transition:0.3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.carousel-arrow:hover{background:rgba(255,255,255,0.35);}
+.carousel-arrow.prev{left:18px;}
+.carousel-arrow.next{right:18px;}
+
+/* PANELS */
+.panels{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px;}
+.panel{min-height:75vh;padding:60px 50px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;border-radius:20px;color:#fff;cursor:pointer;transition:0.4s;position:relative;}
+.panel::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.25);border-radius:20px;z-index:0;}
+.panel>*{position:relative;z-index:1;}
+.panel:hover{transform:translateY(-8px) scale(1.02);}
+.bridal{background:var(--midnight);}
+.everyday{background:var(--moss);}
+.statement{background:var(--rosy);}
+.panel-text{display:flex;flex-direction:column;gap:18px;}
+.bridal-title,.everyday-title,.statement-title{font-size:52px;line-height:1.2;letter-spacing:0.5px;}
+.bridal-title,.everyday-title{font-family:'Playfair Display',serif;}
+.statement-title{font-family:'Cinzel',serif;}
+.bridal-desc,.everyday-desc,.statement-desc{font-family:'Montserrat',sans-serif;font-size:16px;max-width:420px;line-height:1.9;color:#f5f5f5;}
+.panel-btn{align-self:flex-end;background:#fff;color:var(--dark-green);border:none;padding:12px 20px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;transition:0.3s;}
+.panel-btn:hover{background:var(--dark-green);color:var(--beige);}
+
+/* PRODUCTS */
+.products{display:none;padding:40px;}
+.page-title{font-family:'Playfair Display',serif;font-size:32px;letter-spacing:0.5px;margin-bottom:4px;}
+.cat-subtitle{font-size:13px;color:#aaa;margin-bottom:0;font-style:italic;}
+.subcategory-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 10px;}
+.tab-btn{background:transparent;border:2px solid var(--dark-green);color:var(--dark-green);padding:7px 18px;border-radius:25px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;transition:0.3s;}
+.tab-btn:hover,.tab-btn.active{background:var(--dark-green);color:var(--beige);}
+.tab-btn.col-bridal.active{background:var(--midnight);border-color:var(--midnight);}
+.tab-btn.col-everyday.active{background:var(--moss);border-color:var(--moss);}
+.tab-btn.col-statement.active{background:var(--rosy);border-color:var(--rosy);}
+.filter-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:white;border-radius:14px;padding:14px 22px;margin:16px 0 24px;box-shadow:0 4px 16px rgba(0,0,0,0.06);}
+.filter-label{font-family:'Playfair Display',serif;font-size:14px;color:var(--dark-green);white-space:nowrap;font-weight:600;}
+.price-range-wrap{display:flex;align-items:center;gap:12px;flex:1;min-width:200px;}
+.price-display{font-size:13px;color:var(--rosy);font-weight:600;white-space:nowrap;min-width:150px;}
+.dual-slider{position:relative;width:100%;height:28px;}
+.dual-slider input[type=range]{position:absolute;width:100%;height:4px;top:50%;transform:translateY(-50%);background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none;margin:0;padding:0;border:none;outline:none;}
+.dual-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--dark-green);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);pointer-events:all;cursor:pointer;transition:transform 0.15s;}
+.dual-slider input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);background:var(--midnight);}
+.dual-slider input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--dark-green);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);pointer-events:all;cursor:pointer;}
+.slider-track{position:absolute;top:50%;transform:translateY(-50%);height:4px;width:100%;background:#e0ddd0;border-radius:4px;z-index:0;}
+.slider-fill{position:absolute;height:4px;background:var(--moss);border-radius:4px;top:50%;transform:translateY(-50%);z-index:1;pointer-events:none;}
+.result-count{font-size:12px;color:#aaa;white-space:nowrap;}
+.reset-price{background:none;border:1px solid #ddd;color:#888;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-family:'Poppins',sans-serif;transition:0.2s;white-space:nowrap;}
+.reset-price:hover{border-color:var(--rosy);color:var(--rosy);}
+
+/* GRID & CARD */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:25px;}
+.card{background:white;border-radius:15px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.08);transition:0.3s;position:relative;}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 35px rgba(0,0,0,0.13);}
+.card img{width:100%;height:210px;object-fit:cover;display:block;}
+.card-body{padding:15px;text-align:center;}
+.card-body h3{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px;line-height:1.4;}
+.card-body .sub-desc{font-size:12px;color:#888;margin-bottom:6px;font-style:italic;}
+.price{color:var(--rosy);font-weight:600;margin:8px 0;font-size:15px;}
+.sub-label{display:inline-block;font-size:11px;background:var(--beige);color:var(--moss);border-radius:20px;padding:2px 10px;margin-bottom:8px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;}
+.col-badge{display:inline-block;font-size:10px;border-radius:20px;padding:2px 9px;margin-bottom:6px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase;margin-left:4px;}
+.col-badge.bridal{background:#e8f0f5;color:var(--midnight);}
+.col-badge.everyday{background:#f0f4e8;color:var(--moss);}
+.col-badge.statement{background:#faf0ee;color:var(--rosy);}
+.add-btn{border:none;background:var(--dark-green);color:var(--beige);padding:8px 18px;border-radius:20px;cursor:pointer;font-size:13px;transition:0.3s;font-family:'Poppins',sans-serif;}
+.add-btn:hover{background:var(--midnight);}
+.back{margin-bottom:20px;display:inline-block;cursor:pointer;font-weight:600;color:var(--dark-green);font-size:15px;background:none;border:none;font-family:'Poppins',sans-serif;}
+.back:hover{color:var(--rosy);}
+.no-results{padding:40px;color:#888;font-style:italic;}
+
+/* CHECKOUT */
+.checkout{display:none;padding:40px;}
+.checkout-layout{display:flex;gap:32px;flex-wrap:wrap;max-width:960px;margin:auto;}
+.cart-panel{flex:1 1 420px;background:white;border-radius:15px;padding:28px;box-shadow:0 10px 25px rgba(0,0,0,0.08);}
+.cart-panel h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:18px;border-bottom:1px solid #eee;padding-bottom:10px;}
+.cart-empty{color:#aaa;font-style:italic;font-size:14px;padding:20px 0;}
+.cart-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f0ede0;}
+.cart-item:last-child{border-bottom:none;}
+.cart-item img{width:60px;height:60px;object-fit:cover;border-radius:10px;flex-shrink:0;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{font-family:'Playfair Display',serif;font-size:13px;line-height:1.4;margin-bottom:2px;}
+.cart-item-price{font-size:12px;color:var(--rosy);font-weight:600;}
+.qty-controls{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.qty-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--dark-green);background:transparent;color:var(--dark-green);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;padding:0;}
+.qty-btn:hover{background:var(--dark-green);color:var(--beige);}
+.qty-num{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+.remove-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:18px;flex-shrink:0;transition:0.2s;padding:4px;}
+.remove-btn:hover{color:#e07070;}
+.cart-totals{margin-top:16px;padding-top:12px;border-top:2px solid var(--beige);}
+.cart-total-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;}
+.cart-total-row.grand{font-weight:700;font-size:16px;color:var(--dark-green);margin-top:8px;}
+.order-form-panel{flex:1 1 300px;background:white;border-radius:15px;padding:28px;box-shadow:0 10px 25px rgba(0,0,0,0.08);align-self:flex-start;}
+.order-form-panel h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:18px;border-bottom:1px solid #eee;padding-bottom:10px;}
+input{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;font-family:'Poppins',sans-serif;font-size:14px;}
+input:focus{outline:none;border-color:var(--moss);}
+.place-order-btn{width:100%;padding:13px;margin-top:10px;border:none;background:var(--dark-green);color:var(--beige);border-radius:25px;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;transition:0.3s;}
+.place-order-btn:hover{background:var(--midnight);}
+.place-order-btn:disabled{background:#ccc;cursor:not-allowed;}
+
+/* DROPDOWN MENU */
+.menu-dropdown{position:absolute;top:60px;left:0;background:var(--beige);color:var(--dark-green);border-radius:14px;padding:18px 22px;box-shadow:0 12px 30px rgba(0,0,0,0.12);display:none;flex-direction:column;gap:14px;z-index:1000;min-width:200px;font-family:'Playfair Display',serif;}
+.menu-dropdown span{cursor:pointer;font-size:15px;letter-spacing:0.5px;transition:0.3s;}
+.menu-dropdown span:hover{color:var(--rosy);transform:translateX(4px);}
+.menu-dropdown .divider{border-top:1px solid var(--moss);margin:10px 0;}
+.contact-item{font-weight:600;color:var(--midnight);}
+
+/* FOOTER */
+.footer{background:var(--dark-green);color:var(--beige);padding:30px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+.footer-links{display:flex;gap:25px;flex-wrap:wrap;font-size:14px;opacity:0.9;}
+.footer-links span{cursor:pointer;}
+.footer-links span:hover{text-decoration:underline;}
+.footer-contact{font-weight:600;cursor:pointer;}
+.footer-contact:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:15px;position:relative;">
+    <div class="menu-icon" id="menuIcon" onclick="toggleMenu()" style="cursor:pointer;font-size:20px;color:var(--beige);">☰</div>
+    <div class="logo" onclick="goHome()">Lumière</div>
+    <div class="menu-dropdown" id="menu">
+      <span onclick="openCategory('anklets')">Anklets</span>
+      <span onclick="openCategory('bracelets')">Bracelets</span>
+      <span onclick="openCategory('earrings')">Earrings</span>
+      <span onclick="openCategory('necklaces')">Necklaces</span>
+      <span onclick="openCategory('rings')">Rings</span>
+      <span onclick="openCategory('sets')">Sets</span>
+      <div class="divider"></div>
+      <span class="contact-item" onclick="alert('Contact us at support@lumiere.com')">Contact Us</span>
+    </div>
+  </div>
+
+  <div class="header-icons">
+    <!-- Login / User chip -->
+    <div id="authArea" style="position:relative;">
+      <div id="loginBtn" class="hicon" title="Sign In" onclick="openAuthModal()">👤</div>
+      <div id="userChip" class="user-chip" style="display:none;" onclick="toggleUserDD()">
+        <div class="user-av" id="userAv"></div>
+        <span class="user-nm" id="userNm"></span>
+      </div>
+      <div class="user-dd" id="userDD">
+        <div class="dd-item" onclick="openWishlistPage()">❤️&nbsp; My Wishlist <span id="ddWishN" style="margin-left:auto;font-size:12px;color:var(--rosy);font-weight:700;"></span></div>
+        <div class="dd-item" onclick="openCheckout()">🛒&nbsp; My Cart</div>
+        <div class="dd-divider"></div>
+        <div class="dd-item dd-logout" onclick="logout()">↩&nbsp; Sign Out</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="hicon" title="Search (Ctrl+K)" onclick="openSearch()">🔍</div>
+
+    <!-- Wishlist -->
+    <div class="wish-icon-wrap" id="wishIconWrap" title="Wishlist" onclick="openWishlistPage()">
+      ♡<span class="badge wish-badge" id="wishBadge"></span>
+    </div>
+
+    <!-- Cart -->
+    <div class="cart-wrap" onclick="openCheckout()">🛒 <span class="badge" id="cartCount">0</span></div>
+  </div>
+</header>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="onSOClick(event)">
+  <div class="search-box">
+    <input class="search-input" id="searchInput" placeholder="Search jewellery…" oninput="onSearchInput()" autocomplete="off">
+    <button class="search-close-btn" onclick="closeSearch()">✕</button>
+    <div class="search-results" id="searchResults"></div>
+    <p class="search-hint" id="searchHint">Start typing to discover pieces… &nbsp;·&nbsp; <kbd style="opacity:0.5;font-size:11px;">Esc</kbd> to close</p>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="authModal" onclick="onAMClick(event)">
+  <div class="auth-card">
+    <button class="m-close" onclick="closeAuthModal()">✕</button>
+    <h2 id="authH">Welcome Back</h2>
+    <p class="auth-sub" id="authS">Sign in to save your wishlist &amp; track orders</p>
+    <div class="auth-tabs">
+      <button class="a-tab active" id="tLogin" onclick="switchTab('login')">Sign In</button>
+      <button class="a-tab" id="tReg" onclick="switchTab('reg')">Register</button>
+    </div>
+    <div id="fLogin">
+      <div class="a-field"><label>Email</label><input type="email" id="lEmail" placeholder="you@email.com"></div>
+      <div class="a-field"><label>Password</label><input type="password" id="lPass" placeholder="••••••••"></div>
+      <p class="a-err" id="lErr"></p>
+      <button class="a-btn" onclick="doLogin()">Sign In</button>
+    </div>
+    <div id="fReg" style="display:none;">
+      <div class="a-field"><label>Full Name</label><input type="text" id="rName" placeholder="Your name"></div>
+      <div class="a-field"><label>Email</label><input type="email" id="rEmail" placeholder="you@email.com"></div>
+      <div class="a-field"><label>Password</label><input type="password" id="rPass" placeholder="min. 6 characters"></div>
+      <p class="a-err" id="rErr"></p>
+      <button class="a-btn" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAROUSEL -->
+<div class="carousel-wrapper" id="carouselWrapper">
+  <div class="carousel-track" id="carouselTrack"></div>
+  <button class="carousel-arrow prev" onclick="carouselStep(-1)">&#8592;</button>
+  <button class="carousel-arrow next" onclick="carouselStep(1)">&#8594;</button>
+  <div class="carousel-dots" id="carouselDots"></div>
+</div>
+
+<!-- HOME PANELS -->
+<div class="panels" id="home">
+  <div class="panel bridal" onclick="openCollection('bridal')">
+    <div class="panel-text">
+      <h2 class="bridal-title">Bridal</h2>
+      <p class="bridal-desc">For your most beautiful beginning. Handcrafted heirlooms designed to capture the magic of your forever.</p>
+    </div>
+    <button class="panel-btn">Find Your Forever Piece</button>
+  </div>
+  <div class="panel everyday" onclick="openCollection('everyday')">
+    <div class="panel-text">
+      <h2 class="everyday-title">Everyday</h2>
+      <p class="everyday-desc">The softest glow comes from the gem shining from the light you carry inside.<br><br>For pieces that make you feel grounded and beautiful.</p>
+    </div>
+    <button class="panel-btn">Celebrate Yourself</button>
+  </div>
+  <div class="panel statement" onclick="openCollection('statement')">
+    <div class="panel-text">
+      <h2 class="statement-title">Statement</h2>
+      <p class="statement-desc">Let your jewelry speak your truth.<br><br>You were never meant to blend in. Elevate your story.</p>
+    </div>
+    <button class="panel-btn">Discover Your Signature</button>
+  </div>
+</div>
+
+<footer class="footer" id="mainFooter">
+  <div class="footer-links">
+    <span onclick="openCategory('anklets')">Anklets</span>
+    <span onclick="openCategory('bracelets')">Bracelets</span>
+    <span onclick="openCategory('earrings')">Earrings</span>
+    <span onclick="openCategory('necklaces')">Necklaces</span>
+    <span onclick="openCategory('rings')">Rings</span>
+    <span onclick="openCategory('sets')">Sets</span>
+  </div>
+  <div class="footer-contact">Contact Us</div>
+</footer>
+
+<!-- PRODUCTS PAGE -->
+<div class="products" id="products">
+  <button class="back" onclick="goBack()">← Back</button>
+  <h2 class="page-title" id="title"></h2>
+  <p class="cat-subtitle" id="subtitle"></p>
+  <div class="subcategory-tabs" id="subcategoryTabs"></div>
+  <div class="filter-bar" id="filterBar">
+    <span class="filter-label">Price Range</span>
+    <div class="price-range-wrap">
+      <div class="dual-slider">
+        <div class="slider-track"></div>
+        <div class="slider-fill" id="sliderFill"></div>
+        <input type="range" id="priceMin" min="0" max="100" value="0" oninput="onSlider()">
+        <input type="range" id="priceMax" min="0" max="100" value="100" oninput="onSlider()">
+      </div>
+    </div>
+    <span class="price-display" id="priceDisplay"></span>
+    <span class="result-count" id="resultCount"></span>
+    <button class="reset-price" onclick="resetPrice()">Reset</button>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- WISHLIST PAGE -->
+<div class="wishlist-page" id="wishlistPage">
+  <button class="back" onclick="goBack()">← Back</button>
+  <h2 class="page-title">My Wishlist ❤️</h2>
+  <p class="cat-subtitle" id="wishSub" style="margin-bottom:24px;"></p>
+  <div class="grid" id="wishGrid"></div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="checkout" id="checkout">
+  <button class="back" onclick="goBack()">← Back</button>
+  <div class="checkout-layout">
+    <div class="cart-panel">
+      <h3>Your Cart</h3>
+      <div id="cartItemsList"></div>
+      <div class="cart-totals" id="cartTotals"></div>
+    </div>
+    <div class="order-form-panel">
+      <h3>Delivery Details</h3>
+      <input id="fname" placeholder="Full Name">
+      <input id="faddr" placeholder="Address">
+      <input id="fphone" placeholder="Phone">
+      <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  PRODUCT DATA
+// ══════════════════════════════════════
+const products=[
+  {id:101,name:"The Eternal Promise Band",sub:"Rings",cat:"bridal",desc:"A classic diamond eternity band",img:"C:/Users/User/Downloads/radhika/foc project/bride/rings/1.png",price:48000},
+  {id:102,name:"Seraphina Pear Drop Ring",sub:"Rings",cat:"bridal",desc:"A teardrop-shaped focal stone",img:"C:/Users/User/Downloads/radhika/foc project/bride/rings/2.png",price:52000},
+  {id:103,name:"Vintage Heirloom Halo",sub:"Rings",cat:"bridal",desc:"Intricate milgrain detailing",img:"C:/Users/User/Downloads/radhika/foc project/bride/rings/3.png",price:61000},
+  {id:104,name:"Grace Solitaire",sub:"Rings",cat:"bridal",desc:"Minimalist high-polish gold or platinum band",img:"C:/Users/User/Downloads/radhika/foc project/bride/rings/4.png",price:39000},
+  {id:105,name:"Moonlit Petal Wrap",sub:"Rings",cat:"bridal",desc:"Nature-inspired vine with marquise diamonds",img:"C:/Users/User/Downloads/radhika/foc project/bride/rings/5.png",price:55000},
+  {id:106,name:"The Radiant Bride Tennis Bracelet",sub:"Bracelets",cat:"bridal",desc:"Continuous shimmer",img:"C:/Users/User/Downloads/radhika/foc project/bride/bracelet/The Radiant Bride Tennis Bracelet bride 1.png",price:42000},
+  {id:107,name:"Woven Silk Pearl Cuff",sub:"Bracelets",cat:"bridal",desc:"Multi-strand seed pearls",img:"C:/Users/User/Downloads/radhika/foc project/bride/bracelet/Woven Silk Pearl Cuff bride 2.png",price:28000},
+  {id:108,name:"Aria Floating Diamond Bangle",sub:"Bracelets",cat:"bridal",desc:"Thin, dainty, and stackable",img:"C:/Users/User/Downloads/radhika/foc project/bride/bracelet/Aria Floating Diamond Bangle bride 3.png",price:33000},
+  {id:109,name:"Celeste Crystal Vine Link",sub:"Bracelets",cat:"bridal",desc:"Ornate floral-inspired link bracelet",img:"C:/Users/User/Downloads/radhika/foc project/bride/bracelet/Celeste Crystal Vine Link bride 4.png",price:37000},
+  {id:110,name:"Everglow Baguette Cuff",sub:"Bracelets",cat:"bridal",desc:"Modern architectural art-deco style",img:"C:/Users/User/Downloads/radhika/foc project/bride/bracelet/Everglow Baguette Cuff bride 5.png",price:44000},
+  {id:111,name:"The Empress Grand Choker",sub:"Necklaces",cat:"bridal",desc:"A statement piece for deep necklines",img:"C:/Users/User/Downloads/radhika/foc project/bride/necklace/1.png",price:75000},
+  {id:112,name:"Solitaire Dewdrop Pendant",sub:"Necklaces",cat:"bridal",desc:"Simple, elegant single-stone necklace",img:"C:/Users/User/Downloads/radhika/foc project/bride/necklace/2.png",price:31000},
+  {id:113,name:"Cascading Willow Y-Necklace",sub:"Necklaces",cat:"bridal",desc:"Elongating and perfect for V-necks",img:"C:/Users/User/Downloads/radhika/foc project/bride/necklace/3.png",price:29000},
+  {id:114,name:"Timeless Teardrop Pearl",sub:"Necklaces",cat:"bridal",desc:"A single high-luster South Sea pearl",img:"C:/Users/User/Downloads/radhika/foc project/bride/necklace/4.png",price:58000},
+  {id:115,name:"The Stardust Collar",sub:"Necklaces",cat:"bridal",desc:"Clusters of tiny diamonds that catch light",img:"C:/Users/User/Downloads/radhika/foc project/bride/necklace/5.png",price:68000},
+  {id:116,name:"Something Blue Charm Anklet",sub:"Anklets",cat:"bridal",desc:"Subtle blue sapphire or topaz accents",img:"C:/Users/User/Downloads/radhika/foc project/bride/anklets/Something-Blue-Charm-Anklet-bride-1.png",price:14000},
+  {id:117,name:"Shimmering Sands Silk Thread",sub:"Anklets",cat:"bridal",desc:"Ultra-fine gold chain",img:"C:/Users/User/Downloads/radhika/foc project/bride/anklets/Shimmering-Sands-Silk-Thread-bride-2.png",price:11000},
+  {id:118,name:"The Secret Garden Anklet",sub:"Anklets",cat:"bridal",desc:"Tiny gold leaves and buds",img:"C:/Users/User/Downloads/radhika/foc project/bride/anklets/The-Secret-Garden-Anklet-bride-3.png",price:16500},
+  {id:119,name:"Pure Pearl Drops",sub:"Anklets",cat:"bridal",desc:"Hanging freshwater pearls for movement",img:"C:/Users/User/Downloads/radhika/foc project/bride/anklets/Pure-Pearl-Drops-bride-4.png",price:19000},
+  {id:120,name:"Infinity Knot Anklet",sub:"Anklets",cat:"bridal",desc:"A symbolic tying-the-knot design",img:"C:/Users/User/Downloads/radhika/foc project/bride/anklets/Infinity-Knot-Anklet-bride-5.jpeg",price:12500},
+  {id:121,name:"Regal Chandelier Drops",sub:"Earrings",cat:"bridal",desc:"Bold, intricate, and light-catching",img:"C:/Users/User/Downloads/radhika/foc project/bride/earrings/1.png",price:35000},
+  {id:122,name:"Petal & Pearl Studs",sub:"Earrings",cat:"bridal",desc:"Floral gold work with a pearl center",img:"C:/Users/User/Downloads/radhika/foc project/bride/earrings/2.png",price:22000},
+  {id:123,name:"The Luminescent Threaders",sub:"Earrings",cat:"bridal",desc:"Modern, long, and sleek",img:"C:/Users/User/Downloads/radhika/foc project/bride/earrings/3.png",price:18000},
+  {id:124,name:"Morning Dew Hoops",sub:"Earrings",cat:"bridal",desc:"Small hoops encrusted with pavé diamonds",img:"C:/Users/User/Downloads/radhika/foc project/bride/earrings/4.png",price:27000},
+  {id:125,name:"Victoria Marquise Clusters",sub:"Earrings",cat:"bridal",desc:"Sophisticated cluster of wing-shaped stones",img:"C:/Users/User/Downloads/radhika/foc project/bride/earrings/5.png",price:41000},
+  {id:126,name:"The Divine Grace Set",sub:"Sets",cat:"bridal",desc:"Classic round diamonds in a minimalist setting",img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/1.png",price:89000},
+  {id:127,name:"The Pearl Symphony Set",sub:"Sets",cat:"bridal",desc:"Matching pearl strand and drop earrings",img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/2.png",price:72000},
+  {id:128,name:"The Royal Orchid Set",sub:"Sets",cat:"bridal",desc:"Intricate floral gold work with matching studs",img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/3.png",price:97000},
+  {id:129,name:"The Vintage Romance Set",sub:"Sets",cat:"bridal",desc:"Antique-inspired lace metalwork",img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/4.png",price:83000},
+  {id:130,name:"The Stellar Night Set",sub:"Sets",cat:"bridal",desc:"Star-shaped diamond motifs for a modern bride",img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/5.png",price:10500},
+  {id:201,name:"The Sunbeam Chain",sub:"Anklets",cat:"everyday",desc:"A simple, glinting gold link",img:"C:/Users/User/Downloads/radhika/foc project/casual/anklets/1.png",price:3200},
+  {id:202,name:"Meadow Walk Anklet",sub:"Anklets",cat:"everyday",desc:"Tiny, delicate wildflower charms",img:"C:/Users/User/Downloads/radhika/foc project/casual/anklets/2.png",price:2800},
+  {id:203,name:"The Rhythm Silk Cord",sub:"Anklets",cat:"everyday",desc:"A soft, durable thread with a single gold bead",img:"C:/Users/User/Downloads/radhika/foc project/casual/anklets/3.png",price:1800},
+  {id:204,name:"Morning Dew Drops",sub:"Anklets",cat:"everyday",desc:"Minimalist silver beads that catch the light",img:"C:/Users/User/Downloads/radhika/foc project/casual/anklets/4.png",price:2200},
+  {id:205,name:"The Explorer Charm",sub:"Anklets",cat:"everyday",desc:"A sturdy but dainty chain for daily wear",img:"C:/Users/User/Downloads/radhika/foc project/casual/anklets/4.png",price:2500},
+  {id:206,name:"The Kindle Bangle",sub:"Bracelets",cat:"everyday",desc:"A slim, hammered metal band that glows warmly",img:"C:/Users/User/Downloads/radhika/foc project/casual/bracelets/1.png",price:4200},
+  {id:207,name:"Gentle Hug Link",sub:"Bracelets",cat:"everyday",desc:"A soft, flexible chain that fits like a second skin",img:"C:/Users/User/Downloads/radhika/foc project/casual/bracelets/2.png",price:3800},
+  {id:208,name:"The Daily Mantra Cuff",sub:"Bracelets",cat:"everyday",desc:"A minimalist open cuff, perfect for stacking",img:"C:/Users/User/Downloads/radhika/foc project/casual/bracelets/3.png",price:4500},
+  {id:209,name:"Woven Memories Bracelet",sub:"Bracelets",cat:"everyday",desc:"Intricate but low-profile gold weaving",img:"C:/Users/User/Downloads/radhika/foc project/casual/bracelets/4.png",price:5100},
+  {id:210,name:"The Serenity Bead",sub:"Bracelets",cat:"everyday",desc:"A single smooth stone or pearl on a fine chain",img:"C:/Users/User/Downloads/radhika/foc project/casual/bracelets/5.png",price:2900},
+  {id:211,name:"The Tiny Spark Studs",sub:"Earrings",cat:"everyday",desc:"Small, brilliant-cut stones for a hint of light",img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/1.png",price:3100},
+  {id:212,name:"Lazy Sunday Hoops",sub:"Earrings",cat:"everyday",desc:"Small, thick huggie style hoops",img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/2.png",price:3600},
+  {id:213,name:"The Barely-There Threaders",sub:"Earrings",cat:"everyday",desc:"Fine gold wires for a modern, airy look",img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/3.png",price:2400},
+  {id:214,name:"Petal Whisper Studs",sub:"Earrings",cat:"everyday",desc:"Tiny matte-finish floral shapes",img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/4.png",price:2700},
+  {id:215,name:"The Everyday Orbit",sub:"Earrings",cat:"everyday",desc:"Simple, high-polish gold circles",img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/5.png",price:3000},
+  {id:216,name:"The North Star Pendant",sub:"Necklaces",cat:"everyday",desc:"A tiny guiding light for your daily journey",img:"C:/Users/User/Downloads/radhika/foc project/casual/necklace/1.png",price:4800},
+  {id:217,name:"Honey Link Chain",sub:"Necklaces",cat:"everyday",desc:"A warm, flat-link chain that lays perfectly flat",img:"C:/Users/User/Downloads/radhika/foc project/casual/necklace/2.png",price:5500},
+  {id:218,name:"The Little Joy Charm",sub:"Necklaces",cat:"everyday",desc:"A small, whimsical heart or star charm",img:"C:/Users/User/Downloads/radhika/foc project/casual/necklace/3.png",price:3200},
+  {id:219,name:"Quiet Reflection Bar",sub:"Necklaces",cat:"everyday",desc:"A sleek, horizontal bar necklace",img:"C:/Users/User/Downloads/radhika/foc project/casual/necklace/4.png",price:4100},
+  {id:220,name:"The Heirloom Seed",sub:"Necklaces",cat:"everyday",desc:"A tiny, organic-shaped gold nugget pendant",img:"C:/Users/User/Downloads/radhika/foc project/casual/necklace/5.png",price:3700},
+  {id:221,name:"The Constant Band",sub:"Rings",cat:"everyday",desc:"A slender hammered gold band",img:"C:/Users/User/Downloads/radhika/foc project/casual/ring/1.png",price:5800},
+  {id:222,name:"The Little Light Solitaire",sub:"Rings",cat:"everyday",desc:"A tiny bezel-set stone, perfect for catching the sun",img:"C:/Users/User/Downloads/radhika/foc project/casual/ring/2.png",price:7200},
+  {id:223,name:"The Horizon Wave Ring",sub:"Rings",cat:"everyday",desc:"A gentle curved silhouette",img:"C:/Users/User/Downloads/radhika/foc project/casual/ring/3.png",price:6400},
+  {id:224,name:"The Silk Ribbon Twist",sub:"Rings",cat:"everyday",desc:"Two ultra-fine wires intertwined",img:"C:/Users/User/Downloads/radhika/foc project/casual/ring/4.png",price:5500},
+  {id:225,name:"The Seedling Signet",sub:"Rings",cat:"everyday",desc:"A miniature dainty signet for a pinky",img:"C:/Users/User/Downloads/radhika/foc project/casual/ring/5.png",price:6100},
+  {id:226,name:"The Soft Morning Set",sub:"Sets",cat:"everyday",desc:"Matching tiny studs and a fine chain",img:"C:/Users/User/Downloads/radhika/foc project/casual/set/1.png",price:9800},
+  {id:227,name:"The Modern Minimalist Set",sub:"Sets",cat:"everyday",desc:"Geometric bar earrings and necklace",img:"C:/Users/User/Downloads/radhika/foc project/casual/set/2.png",price:1120},
+  {id:228,name:"The Golden Hour Set",sub:"Sets",cat:"everyday",desc:"A shimmering bracelet and matching anklet",img:"C:/Users/User/Downloads/radhika/foc project/casual/set/3.png",price:8900},
+  {id:229,name:"The Pure & Simple Set",sub:"Sets",cat:"everyday",desc:"Classic pearl studs and a single pearl pendant",img:"C:/Users/User/Downloads/radhika/foc project/casual/set/4.png",price:1500},
+  {id:230,name:"The City Stroll Set",sub:"Sets",cat:"everyday",desc:"Small textured hoops and a matching textured ring",img:"C:/Users/User/Downloads/radhika/foc project/casual/set/5.png",price:8400},
+  {id:301,name:"The Gilded Tassel Anklet",sub:"Anklets",cat:"statement",desc:"A heavy chain with a signature hanging tassel",img:"C:/Users/User/Downloads/radhika/foc project/statement/anklets/1.png",price:1850},
+  {id:302,name:"Royal Venetian Links",sub:"Anklets",cat:"statement",desc:"Ornate wide links inspired by Italian architecture",img:"C:/Users/User/Downloads/radhika/foc project/statement/anklets/2.png",price:2200},
+  {id:303,name:"The Sirens Call Charm",sub:"Anklets",cat:"statement",desc:"Oversized sea-inspired motifs in high-shine gold",img:"C:/Users/User/Downloads/radhika/foc project/statement/anklets/3.png",price:1680},
+  {id:304,name:"Double-Wrap Onyx Chain",sub:"Anklets",cat:"statement",desc:"Two layers of bold black stones and gold",img:"C:/Users/User/Downloads/radhika/foc project/statement/anklets/4.png",price:2450},
+  {id:305,name:"The Nightfall Fringe",sub:"Anklets",cat:"statement",desc:"Tiny metal shards that chime subtly as you walk",img:"C:/Users/User/Downloads/radhika/foc project/statement/anklets/5.png",price:1900},
+  {id:306,name:"The Aurora Bold Link",sub:"Bracelets",cat:"statement",desc:"Extra-large high-shine interlocking links",img:"C:/Users/User/Downloads/radhika/foc project/statement/bracelets/1.png",price:3400},
+  {id:307,name:"Solar Flare Wide Cuff",sub:"Bracelets",cat:"statement",desc:"A sun-brushed gold cuff",img:"C:/Users/User/Downloads/radhika/foc project/statement/bracelets/2.png",price:4100},
+  {id:308,name:"The Galaxy Cluster Bangle",sub:"Bracelets",cat:"statement",desc:"Encrusted with mixed-cut stones for maximum sparkle",img:"C:/Users/User/Downloads/radhika/foc project/statement/bracelets/3.png",price:5200},
+  {id:309,name:"Serpents Path Wrap",sub:"Bracelets",cat:"statement",desc:"A sleek, coiling metal bracelet",img:"C:/Users/User/Downloads/radhika/foc project/statement/bracelets/4.png",price:3800},
+  {id:310,name:"The Monarch Statement Plate",sub:"Bracelets",cat:"statement",desc:"A heavy solid metal bar with custom engraving",img:"C:/Users/User/Downloads/radhika/foc project/statement/bracelets/5.png",price:4700},
+  {id:311,name:"Cascading Waterfall Drops",sub:"Earrings",cat:"statement",desc:"Long shimmering layers that move when you do",img:"C:/Users/User/Downloads/radhika/foc project/statement/earrings/1.png",price:2900},
+  {id:312,name:"The Celestial Fan Studs",sub:"Earrings",cat:"statement",desc:"Oversized sunburst shapes that hug the lobe",img:"C:/Users/User/Downloads/radhika/foc project/statement/earrings/2.png",price:2350},
+  {id:313,name:"Grand Horizon Hoops",sub:"Earrings",cat:"statement",desc:"Thick architectural hoops with a tapered finish",img:"C:/Users/User/Downloads/radhika/foc project/statement/earrings/3.png",price:3100},
+  {id:314,name:"The Phoenix Wing Climbers",sub:"Earrings",cat:"statement",desc:"Intricate metalwork that follows the curve of the ear",img:"C:/Users/User/Downloads/radhika/foc project/statement/earrings/4.png",price:3650},
+  {id:315,name:"Velvet Night Chandeliers",sub:"Earrings",cat:"statement",desc:"Deep-toned gemstones in a vintage-glam silhouette",img:"C:/Users/User/Downloads/radhika/foc project/statement/earrings/5.png",price:4400},
+  {id:316,name:"The Empress Collar",sub:"Necklaces",cat:"statement",desc:"A solid hand-forged neckpiece at the collarbone",img:"C:/Users/User/Downloads/radhika/foc project/statement/necklaces/1.png",price:6000},
+  {id:317,name:"Stellar Nebula Y-Drop",sub:"Necklaces",cat:"statement",desc:"A dramatic plunging necklace for low necklines",img:"C:/Users/User/Downloads/radhika/foc project/statement/necklaces/2.png",price:4000},
+  {id:318,name:"The Muse Medallion",sub:"Necklaces",cat:"statement",desc:"An oversized ancient-inspired coin on a heavy chain",img:"C:/Users/User/Downloads/radhika/foc project/statement/necklaces/3.png",price:9000},
+  {id:319,name:"Tidal Flow Bib",sub:"Necklaces",cat:"statement",desc:"Interlocking organic shapes that mimic moving water",img:"C:/Users/User/Downloads/radhika/foc project/statement/necklaces/4.png",price:7000},
+  {id:320,name:"The Constellation Torque",sub:"Necklaces",cat:"statement",desc:"A sleek open-front neck ring tipped with diamonds",img:"C:/Users/User/Downloads/radhika/foc project/statement/necklaces/5.png",price:4000},
+  {id:321,name:"The Sovereign Gilded Dome",sub:"Rings",cat:"statement",desc:"A bold high-polish gold cocktail ring",img:"C:/Users/User/Downloads/radhika/foc project/statement/rings/1.png",price:5000},
+  {id:322,name:"Midnight Zenith Emerald",sub:"Rings",cat:"statement",desc:"A large deep-green focal stone in a modern setting",img:"C:/Users/User/Downloads/radhika/foc project/statement/rings/2.png",price:3000},
+  {id:323,name:"The Sculpted Echo Wrap",sub:"Rings",cat:"statement",desc:"A wide textured band that twists around the finger",img:"C:/Users/User/Downloads/radhika/foc project/statement/rings/3.png",price:4000},
+  {id:324,name:"Lunar Eclipse Pearl",sub:"Rings",cat:"statement",desc:"An oversized baroque pearl set in architectural silver",img:"C:/Users/User/Downloads/radhika/foc project/statement/rings/4.png",price:2000},
+  {id:325,name:"The Catalyst Prism",sub:"Rings",cat:"statement",desc:"A sharp geometric crystal that catches every ray of light",img:"C:/Users/User/Downloads/radhika/foc project/statement/rings/5.png",price:1000},
+  {id:326,name:"The Modern Icon Set",sub:"Sets",cat:"statement",desc:"Thick link necklace with matching bold hoops",img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/1.png",price:5000},
+  {id:327,name:"The Goddess Rising Set",sub:"Sets",cat:"statement",desc:"Hammered gold collar and matching wide cuff",img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/2.png",price:8000},
+  {id:328,name:"The Midnight Gala Set",sub:"Sets",cat:"statement",desc:"Dramatic sapphire drops with a matching cocktail ring",img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/3.png",price:6000},
+  {id:329,name:"The Art Deco Set",sub:"Sets",cat:"statement",desc:"Geometric baguette earrings and a structured bangle",img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/4.png",price:7000},
+  {id:330,name:"The Lioness Set",sub:"Sets",cat:"statement",desc:"Strong feline-inspired necklace and stud duo",img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/5.png",price:8000},
+];
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let cart={}, wishlist=new Set(), currentUser=null, users={};
+let currentType='', currentSub='All', currentCol='All', currentList=[];
+let globalMin=0, globalMax=0;
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+const fmt=p=>'₹'+p.toLocaleString('en-IN');
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const cartTotal=()=>Object.values(cart).reduce((a,b)=>a+b,0);
+const cartPrice=()=>Object.entries(cart).reduce((s,[id,q])=>{const p=products.find(x=>x.id===+id);return s+(p?p.price*q:0);},0);
+const updateCartBadge=()=>{document.getElementById('cartCount').textContent=cartTotal();};
+
+// ══════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════
+function openAuthModal(){switchTab('login');document.getElementById('authModal').classList.add('open');}
+function closeAuthModal(){document.getElementById('authModal').classList.remove('open');}
+function onAMClick(e){if(e.target===document.getElementById('authModal'))closeAuthModal();}
+
+function switchTab(t){
+  document.getElementById('fLogin').style.display=t==='login'?'block':'none';
+  document.getElementById('fReg').style.display=t==='reg'?'block':'none';
+  document.getElementById('tLogin').classList.toggle('active',t==='login');
+  document.getElementById('tReg').classList.toggle('active',t==='reg');
+  document.getElementById('authH').textContent=t==='login'?'Welcome Back':'Create Account';
+  document.getElementById('authS').textContent=t==='login'?'Sign in to save your wishlist & track orders':'Join Lumière for a personalised experience';
+  document.getElementById('lErr').textContent='';document.getElementById('rErr').textContent='';
+}
+
+function doLogin(){
+  const email=document.getElementById('lEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('lPass').value;
+  const err=document.getElementById('lErr');
+  if(!email||!pass){err.textContent='Please fill in all fields.';return;}
+  if(!users[email]){err.textContent='No account found with this email.';return;}
+  if(users[email].password!==pass){err.textContent='Incorrect password.';return;}
+  setLoggedIn({name:users[email].name,email});closeAuthModal();
+}
+
+function doRegister(){
+  const name=document.getElementById('rName').value.trim();
+  const email=document.getElementById('rEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('rPass').value;
+  const err=document.getElementById('rErr');
+  if(!name||!email||!pass){err.textContent='Please fill in all fields.';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  if(users[email]){err.textContent='An account with this email already exists.';return;}
+  users[email]={name,password:pass};
+  setLoggedIn({name,email});closeAuthModal();
+}
+
+function setLoggedIn(user){
+  currentUser=user;
+  document.getElementById('loginBtn').style.display='none';
+  document.getElementById('userChip').style.display='flex';
+  document.getElementById('userAv').textContent=user.name.charAt(0).toUpperCase();
+  document.getElementById('userNm').textContent=user.name.split(' ')[0];
+}
+
+function logout(){
+  currentUser=null;cart={};wishlist=new Set();
+  updateCartBadge();updateWishBadge();
+  document.getElementById('userChip').style.display='none';
+  document.getElementById('loginBtn').style.display='block';
+  closeUserDD();goHome();
+}
+
+function toggleUserDD(){document.getElementById('userDD').classList.toggle('open');}
+function closeUserDD(){document.getElementById('userDD').classList.remove('open');}
+
+// ══════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('searchInput').focus(),80);
+}
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchHint').style.display='block';
+}
+function onSOClick(e){if(e.target===document.getElementById('searchOverlay'))closeSearch();}
+
+function onSearchInput(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const hint=document.getElementById('searchHint');
+  const res=document.getElementById('searchResults');
+  if(!q){res.innerHTML='';hint.style.display='block';return;}
+  hint.style.display='none';
+  const hits=products.filter(p=>
+    p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||
+    p.sub.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)
+  ).slice(0,10);
+  if(!hits.length){res.innerHTML='<p class="search-empty">No results found for "'+q+'"</p>';return;}
+  res.innerHTML=hits.map(p=>`<div class="sr-item" onclick="searchGoTo(${p.id})"><img src="${p.img}" alt="${p.name}"><div class="sr-info"><div class="sr-name">${p.name}</div><div class="sr-meta">${cap(p.cat)} · ${p.sub}</div></div><div class="sr-price">${fmt(p.price)}</div></div>`).join('');
+}
+
+function searchGoTo(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  closeSearch();openCollection(p.cat);
+  setTimeout(()=>{
+    document.querySelectorAll('.card h3').forEach(h=>{
+      if(h.textContent===p.name)h.closest('.card').scrollIntoView({behavior:'smooth',block:'center'});
+    });
+  },450);
+}
+
+// ══════════════════════════════════════
+//  WISHLIST
+// ══════════════════════════════════════
+function requireLogin(){if(!currentUser){openAuthModal();return false;}return true;}
+
+function toggleWish(id,btn){
+  if(!requireLogin())return;
+  if(wishlist.has(id)){
+    wishlist.delete(id);btn.classList.remove('on');btn.textContent='♡';
+  }else{
+    wishlist.add(id);btn.classList.add('on');btn.textContent='♥';
+    btn.classList.add('heart-pop');
+    btn.addEventListener('animationend',()=>btn.classList.remove('heart-pop'),{once:true});
+  }
+  updateWishBadge();
+  // refresh wishlist page if open
+  if(document.getElementById('wishlistPage').style.display==='block') renderWishlist();
+}
+
+function updateWishBadge(){
+  const n=wishlist.size;
+  const badge=document.getElementById('wishBadge');
+  badge.style.display=n>0?'inline-flex':'none';
+  badge.textContent=n;
+  document.getElementById('wishIconWrap').classList.toggle('has-items',n>0);
+  const ddN=document.getElementById('ddWishN');
+  if(ddN)ddN.textContent=n>0?`(${n})`:'';
+}
+
+function openWishlistPage(){
+  closeUserDD();
+  if(!requireLogin())return;
+  hideAll();
+  document.getElementById('wishlistPage').style.display='block';
+  renderWishlist();
+}
+
+function renderWishlist(){
+  const ids=[...wishlist];
+  const sub=document.getElementById('wishSub');
+  const grid=document.getElementById('wishGrid');
+  if(!ids.length){sub.textContent='';grid.innerHTML='<p class="no-results">Your wishlist is empty. Heart a piece to save it here ♡</p>';return;}
+  sub.textContent=ids.length+' saved piece'+(ids.length>1?'s':'');
+  grid.innerHTML=ids.map(id=>{const p=products.find(x=>x.id===id);return p?cardHTML(p,true):'';}).join('');
+}
+
+// ══════════════════════════════════════
+//  CAROUSEL
+// ══════════════════════════════════════
+const slides=[
+  {img:"C:/Users/User/Downloads/radhika/foc project/bride/sets/1.png",title:"New Bridal Collection",desc:"Handcrafted heirlooms for your most beautiful beginning.",btn:"Explore Bridal",action:"openCollection('bridal')"},
+  {img:"C:/Users/User/Downloads/radhika/foc project/casual/set/5.png",title:"Everyday Elegance",desc:"Pieces that glow as softly as the light you carry inside.",btn:"Shop Everyday",action:"openCollection('everyday')"},
+  {img:"C:/Users/User/Downloads/radhika/foc project/statement/sets/2.png",title:"Statement Pieces",desc:"You were never meant to blend in. Let your jewelry speak.",btn:"Discover Statement",action:"openCollection('statement')"},
+  {img:"C:/Users/User/Downloads/radhika/foc project/casual/earring/2.png",title:"Fine Earrings",desc:"From delicate studs to dramatic chandeliers.",btn:"Browse Earrings",action:"openCategory('earrings')"}
+];
+let cIdx=0,cTimer=null;
+function buildCarousel(){
+  document.getElementById('carouselTrack').innerHTML=slides.map(s=>`<div class="carousel-slide"><img src="${s.img}" alt="${s.title}" loading="lazy"><div class="carousel-caption"><h2>${s.title}</h2><p>${s.desc}</p><button onclick="${s.action}">${s.btn}</button></div></div>`).join('');
+  document.getElementById('carouselDots').innerHTML=slides.map((_,i)=>`<button class="carousel-dot ${i===0?'active':''}" onclick="goSlide(${i})"></button>`).join('');
+  cTimer=setInterval(()=>goSlide(cIdx+1),4500);
+}
+function goSlide(n){
+  cIdx=(n+slides.length)%slides.length;
+  document.getElementById('carouselTrack').style.transform=`translateX(-${cIdx*100}%)`;
+  document.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===cIdx));
+  clearInterval(cTimer);cTimer=setInterval(()=>goSlide(cIdx+1),4500);
+}
+function carouselStep(d){goSlide(cIdx+d);}
+
+// ══════════════════════════════════════
+//  CART
+// ══════════════════════════════════════
+function add(id){cart[id]=(cart[id]||0)+1;updateCartBadge();}
+function changeQty(id,d){const n=(cart[id]||0)+d;if(n<=0)delete cart[id];else cart[id]=n;updateCartBadge();renderCart();}
+function removeFromCart(id){delete cart[id];updateCartBadge();renderCart();}
+function renderCart(){
+  const list=document.getElementById('cartItemsList'), tot=document.getElementById('cartTotals'), btn=document.getElementById('placeOrderBtn');
+  const ids=Object.keys(cart).map(Number);
+  if(!ids.length){list.innerHTML='<p class="cart-empty">Your cart is empty.</p>';tot.innerHTML='';btn.disabled=true;return;}
+  btn.disabled=false;
+  list.innerHTML=ids.map(id=>{const p=products.find(x=>x.id===id);if(!p)return'';const q=cart[id];
+    return`<div class="cart-item"><img src="${p.img}" alt="${p.name}"><div class="cart-item-info"><div class="cart-item-name">${p.name}</div><div class="cart-item-price">${fmt(p.price)} each</div><div class="qty-controls"><button class="qty-btn" onclick="changeQty(${id},-1)">−</button><span class="qty-num">${q}</span><button class="qty-btn" onclick="changeQty(${id},1)">+</button></div></div><button class="remove-btn" onclick="removeFromCart(${id})">✕</button></div>`;
+  }).join('');
+  const t=cartPrice();
+  tot.innerHTML=`<div class="cart-total-row"><span>${cartTotal()} item(s)</span><span>${fmt(t)}</span></div><div class="cart-total-row"><span>Delivery</span><span style="color:var(--moss);font-weight:600;">Free</span></div><div class="cart-total-row grand"><span>Total</span><span>${fmt(t)}</span></div>`;
+}
+
+// ══════════════════════════════════════
+//  PRICE SLIDER
+// ══════════════════════════════════════
+function initSlider(list){
+  const prices=list.map(p=>p.price);globalMin=Math.min(...prices);globalMax=Math.max(...prices);
+  const mn=document.getElementById('priceMin'),mx=document.getElementById('priceMax');
+  mn.min=mx.min=globalMin;mn.max=mx.max=globalMax;mn.value=globalMin;mx.value=globalMax;
+  updateSliderUI(globalMin,globalMax);
+}
+function updateSliderUI(lo,hi){
+  const pct=v=>((v-globalMin)/(globalMax-globalMin))*100;
+  document.getElementById('sliderFill').style.left=pct(lo)+'%';
+  document.getElementById('sliderFill').style.width=(pct(hi)-pct(lo))+'%';
+  document.getElementById('priceDisplay').textContent=fmt(lo)+' – '+fmt(hi);
+  const n=currentList.filter(p=>p.price>=lo&&p.price<=hi).length;
+  document.getElementById('resultCount').textContent=n+' item'+(n!==1?'s':'');
+}
+function onSlider(){
+  let lo=+document.getElementById('priceMin').value,hi=+document.getElementById('priceMax').value;
+  if(lo>hi)[lo,hi]=[hi,lo];updateSliderUI(lo,hi);
+  document.getElementById('grid').innerHTML=currentList.filter(p=>p.price>=lo&&p.price<=hi).map(cardHTML).join('')||'<p class="no-results">No items in this price range.</p>';
+}
+function resetPrice(){
+  document.getElementById('priceMin').value=globalMin;document.getElementById('priceMax').value=globalMax;
+  updateSliderUI(globalMin,globalMax);document.getElementById('grid').innerHTML=currentList.map(cardHTML).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER HELPERS
+// ══════════════════════════════════════
+function showGrid(list,badge=false){
+  currentList=list;
+  if(!list.length){document.getElementById('grid').innerHTML='<p class="no-results">No items found.</p>';document.getElementById('filterBar').style.display='none';return;}
+  document.getElementById('filterBar').style.display='flex';initSlider(list);
+  document.getElementById('grid').innerHTML=list.map(p=>cardHTML(p,badge)).join('');
+}
+
+function cardHTML(p,showBadge=false){
+  const colBadge=showBadge?`<span class="col-badge ${p.cat}">${cap(p.cat)}</span>`:'';
+  const wished=wishlist.has(p.id);
+  return`<div class="card">
+    <img src="${p.img}" alt="${p.name}" loading="lazy">
+    <button class="wish-btn${wished?' on':''}" onclick="toggleWish(${p.id},this)" title="Wishlist">${wished?'♥':'♡'}</button>
+    <div class="card-body">
+      <span class="sub-label">${p.sub}</span>${colBadge}
+      <h3>${p.name}</h3>
+      <p class="sub-desc">${p.desc}</p>
+      <div class="price">${fmt(p.price)}</div>
+      <button class="add-btn" onclick="add(${p.id})">Add to Cart</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+//  COLLECTION / CATEGORY VIEWS
+// ══════════════════════════════════════
+function openCollection(type){
+  currentType=type;currentCol='All';hideAll();
+  document.getElementById('products').style.display='block';
+  document.getElementById('title').textContent=cap(type);
+  document.getElementById('subtitle').textContent='';
+  const subs=['All',...new Set(products.filter(p=>p.cat===type).map(p=>p.sub))];
+  currentSub='All';
+  document.getElementById('subcategoryTabs').innerHTML=subs.map((s,i)=>`<button class="tab-btn ${i===0?'active':''}" onclick="switchSubTab('${type}','${s}',this)">${s}</button>`).join('');
+  showGrid(products.filter(p=>p.cat===type));
+}
+function switchSubTab(type,sub,btn){
+  document.querySelectorAll('#subcategoryTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentSub=sub;
+  showGrid(products.filter(p=>p.cat===type&&(sub==='All'||p.sub===sub)));
+}
+function openCategory(cat){
+  currentType='__cat__';currentCol='All';hideAll();closeMenu();
+  document.getElementById('products').style.display='block';
+  document.getElementById('title').textContent=cap(cat);
+  const all=products.filter(p=>p.sub.toLowerCase()===cat.toLowerCase());
+  const cols=[...new Set(all.map(p=>p.cat))];
+  if(cols.length>1){
+    document.getElementById('subtitle').textContent='Browse across all collections';
+    const tabs=['All',...cols.map(cap)];
+    document.getElementById('subcategoryTabs').innerHTML=tabs.map((c,i)=>`<button class="tab-btn ${c!=='All'?'col-'+c.toLowerCase():''} ${i===0?'active':''}" onclick="switchColTab('${cat}','${c}',this)">${c}</button>`).join('');
+  }else{document.getElementById('subtitle').textContent='';document.getElementById('subcategoryTabs').innerHTML='';}
+  showGrid(all,cols.length>1);
+}
+function switchColTab(cat,col,btn){
+  document.querySelectorAll('#subcategoryTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentCol=col;
+  const all=products.filter(p=>p.sub.toLowerCase()===cat.toLowerCase());
+  showGrid(col==='All'?all:all.filter(p=>p.cat.toLowerCase()===col.toLowerCase()),col==='All');
+}
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+function openCheckout(){closeUserDD();hideAll();document.getElementById('checkout').style.display='block';renderCart();}
+function placeOrder(){alert('Order placed successfully ✨ Thank you for shopping at Lumière!');cart={};updateCartBadge();goBack();}
+function goBack(){hideAll();document.getElementById('home').style.display='grid';document.getElementById('carouselWrapper').style.display='block';}
+function goHome(){hideAll();document.getElementById('home').style.display='grid';document.getElementById('carouselWrapper').style.display='block';}
+function hideAll(){
+  ['home','products','checkout','wishlistPage'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const cw=document.getElementById('carouselWrapper');if(cw)cw.style.display='none';
+}
+
+// ══════════════════════════════════════
+//  MENU
+// ══════════════════════════════════════
+function toggleMenu(){
+  const m=document.getElementById('menu'),i=document.getElementById('menuIcon');
+  if(m.style.display==='flex')closeMenu();else{m.style.display='flex';i.textContent='✕';}
+}
+function closeMenu(){document.getElementById('menu').style.display='none';document.getElementById('menuIcon').textContent='☰';}
+
+// ══════════════════════════════════════
+//  GLOBAL CLICK / KEYBOARD
+// ══════════════════════════════════════
+document.addEventListener('click',e=>{
+  const aa=document.getElementById('authArea');
+  if(aa&&!aa.contains(e.target))closeUserDD();
+  const m=document.getElementById('menu'),mi=document.querySelector('.menu-icon');
+  if(m&&mi&&m.style.display==='flex'&&!m.contains(e.target)&&!mi.contains(e.target))closeMenu();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeSearch();closeAuthModal();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}
+});
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+buildCarousel();
+</script>
+</body>
+</html>
